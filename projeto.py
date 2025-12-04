@@ -13,8 +13,8 @@ Blood Pressure (systolic/diastolic): The blood pressure measurement of the perso
 Heart Rate (bpm): The resting heart rate of the person in beats per minute.
 Daily Steps: The number of steps the person takes per day.
 Sleep Disorder: The presence or absence of a sleep disorder in the person (None, Insomnia, Sleep Apnea).
-'''
 
+'''
 
 
 #Library imports:
@@ -22,6 +22,8 @@ Sleep Disorder: The presence or absence of a sleep disorder in the person (None,
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as mp
+import seaborn as sns
+from tabulate import tabulate
 
 
 df = None
@@ -29,6 +31,8 @@ df = None
 def carregar_dados():
     try:
         global df
+        #a = str(input("Qual o nome do ficehrio? "))
+        #b = str(input("Qual o tipo de ficheiro? "))1
         df = pd.read_csv("Sleep_health_and_lifestyle_dataset.csv", encoding= "utf-8")
         #Definir o índice como o Person ID
         df = df.set_index("Person ID")
@@ -44,14 +48,61 @@ def carregar_dados():
         print("Verifica se o ficheiro está na mesma pasta ou se o diretório é o correto")
 
 
-carregar_dados()
-print("Occupation types:\n",df["Occupation"].value_counts())
 
+
+#print("Occupation types:\n",df["Occupation"].value_counts())
 
 '''
-# Verificar se existem valores nulos (muito importante em qualquer projeto)
-print("Valores nulos por coluna:\n", df.isnull().sum())
 
 # Ver estatísticas descritivas básicas (Média, min, max, desvio padrão)
 print(df.describe())
+
+
+# 1. Define your data
+x = [1, 2, 3, 4, 5]
+y = [10, 20, 25, 30, 50]
+
+# 2. Plot the data
+mp.plot(x, y, color='green', marker='o', linestyle='dashed')
+
+# 3. Add labels
+mp.title("O meu  título")
+mp.xlabel("AAAAAAAAAAAAAAAAAAA")
+mp.ylabel("Y Axis")
+
+# 4. Show the plot
+
+
+# 1. Load an example dataset provided by Seaborn
+df = sns.load_dataset("tips")
+
+# 2. Create the plot
+# 'hue' colors the dots based on a category (e.g., smoker vs non-smoker)
+sns.scatterplot(data=df, x="total_bill", y="tip", hue="sex")
+
+# 3. Show the plot
+mp.title("Tips vs Total Bill")
+mp.show()
+
 '''
+
+def main():
+    while True:
+        print("\n1 - Entrada dos dados")
+        print("2 - Imprime dados")
+        print("3 - Guardar dados em ficheiro")
+        print("4 - ")
+        print("0 - Sair")
+
+        try:
+            opt = int(input("Qual a sua opção? "))
+        except ValueError:
+            print("Tem de ser um número inteiro entre 0 e 4")
+
+        if opt == 0:
+            break
+        if opt == 1:
+            #Lê os dados a partir do ficheiro 
+            carregar_dados()
+
+main()
