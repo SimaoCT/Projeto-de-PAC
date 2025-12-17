@@ -21,10 +21,10 @@ Sleep Disorder: The presence or absence of a sleep disorder in the person (None,
 
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as mp
+import matplotlib.pyplot as plt
 import seaborn as sns
 import os
-
+import scipy.stats as stats
 #Pré processamento
 
 df = pd.read_csv("Sleep_health_and_lifestyle_dataset.csv", encoding= "utf-8")
@@ -49,7 +49,7 @@ for coluna in df.columns:
 #Guardar em ficheiro (obrigatorio)      
 
 def guardar(df_save):
-    tipo_ficheiro = input("Tipo de formato (ex: csv, txt...): ").lower().strip()
+    tipo_ficheiro = input("\nTipo de formato (ex: csv, txt...): ").lower().strip()
     nome_ficheiro = input(f"Nome do ficheiro (sem extensão): ").strip()
 
 
@@ -66,7 +66,7 @@ def guardar(df_save):
     
     #Verifica se o nome do ficheiro já existe
     if os.path.exists(nome_final):
-        rescrever = input(f"O ficheiro {nome_final} já existe.\nDeseja substituí-lo? (s/n)").lower()
+        rescrever = input(f"\nO ficheiro {nome_final} já existe.\nDeseja substituí-lo? (s/n)").lower()
         if rescrever != "s":
             print("Operação cancelada. Ficheiro não foi guardado")
             return
@@ -99,7 +99,7 @@ def guardar(df_save):
         print(f"ERRO: {a}")
     
 def estat(df):
-    nome_var = input("Que variável ('Enter' para todas as variáveis)? ").strip()
+    nome_var = input("\nQue variável ('Enter' para todas as variáveis)? ").strip()
 
     def calcs(serie, nome_var):
         #Medidas de Localização 
@@ -158,6 +158,60 @@ def vars(df):
         print(f"{i:<5}{coluna:<30}{tipo}")
 
 
+def analise_normalidade(df):
+    nome_vars = input("\nQual o nome da variável? ('Enter' para todas) ").strip()
+
+    obj = []
+
+    def teste(dados, nome_vars):
+        stat, p_value = stats.shapiro(dados)
+        alpha = 0.05
+        print(f"\n{'-'*35}")
+        print(f"Análise de normalidade: {nome_vars}")
+        print(f"{'-'*35}")
+        print(f"Pressupostos:\nH0: Há normalidade vs H1: Não há normalidade\n")
+        print(f"Estatística de teste: {stat:.4f}")
+        print(f"p-Value: {p_value:.6f}")
+
+        if p_value > alpha:
+            print("Não rejeitamos H0, logo podemos aceitar a hipótese de normalidade")
+        else:
+            print("Rejeitamos H0, logo rejeitamos a hipótese de normalidade")
+
+    if not nome_vars:
+        obj = df.select_dtypes(include = "number").columns
+        print(f"Análise de normalidade para as {len(obj)} variáveis numéricas\n")
+    
+    else:
+        if nome_vars not in df.columns:
+            print(f"{nome_vars} não faz parte do conjunto de dados. Escolha outra variável")
+            return
+
+        if not pd.api.types.is_numeric_dtype(df[nome_vars]):
+            print("A variável tem de ser numérica")
+            return
+        
+        obj = [nome_vars]
+        
+    for col in obj:
+        dados = df[col].dropna()
+        teste(dados,col)
+'''
+    #A partir daqui é visualização dos qq plots
+    resposta = input("\nQuer visualizar o(s) QQ-Plot(s)? (s/n) ").lower().strip()
+
+    if resposta in ["s", "sim", "y", "yes"]:
+        for col in obj:
+            dados_limpos = df[col].dropna()
+            
+            plt.figure(figsize=(6, 4))
+            stats.probplot(dados_limpos, dist="norm", plot=plt)
+            plt.title(f"QQ Plot - {col}")
+            plt.grid(True, alpha=0.3)
+            plt.show()
+
+'''
+
 
 
 #Menu Global de Visualização (obrigatorio)
@@ -167,7 +221,8 @@ def main():
         print("2 - Tipo de Variáveis existentes")
         print("3 - Estatísticas de Localização")
         print("4 - Gráficos?")
-        print("5 - Guardar dados em ficheiro")
+        print("5 - Avaliação da normalidade")
+        print("6 - Guardar dados em ficheiro")
         print("0 - Sair")
 
         try:
@@ -186,6 +241,8 @@ def main():
         elif opt == 4:
             print("Ainda sem função")
         elif opt == 5:
+            analise_normalidade(df)
+        elif opt == 6:
             guardar(df)
         else:
             print("Valor não reconhecido")
