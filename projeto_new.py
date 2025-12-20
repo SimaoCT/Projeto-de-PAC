@@ -20,13 +20,14 @@ Sleep Disorder: The presence or absence of a sleep disorder in the person (None,
 #     Library imports      #
 ############################
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 import scipy.stats as stats
 from tabulate import tabulate
+import math
 from datetime import datetime
+import numpy as np
 
 ###########################
 #    Pré processamento    #
@@ -233,21 +234,32 @@ def analise_normalidade(df):
     for col in obj:
         dados = df[col].dropna()
         teste(dados,col)
-'''
-    #A partir daqui é visualização dos qq plots
+    
+    # A partir daqui é visualização dos qq plots
     resposta = input("\nQuer visualizar o(s) QQ-Plot(s)? (s/n) ").lower().strip()
 
     if resposta in ["s", "sim", "y", "yes"]:
-        for col in obj:
-            dados_limpos = df[col].dropna()
-            
-            plt.figure(figsize=(6, 4))
-            stats.probplot(dados_limpos, dist="norm", plot=plt)
-            plt.title(f"QQ Plot - {col}")
-            plt.grid(True, alpha=0.3)
-            plt.show()
+        
+        if len(obj) == 1:
+            # Caso 1: Apenas 1 gráfico
+            fig, ax = plt.subplots(figsize=(6, 5))
+            lista_axes = [ax] # Colocamos numa lista para o loop funcionar igual
+        else:
+            fig, axes = plt.subplots(3, 3, figsize=(10, 6))
+            lista_axes = axes.flatten() #Colocar numa lista que na verdade é um vetor
 
-'''
+        # Loop que funciona para os dois casos
+        for i, col in enumerate(obj):
+            stats.probplot(df[col].dropna(), dist="norm", plot=lista_axes[i])
+            
+            lista_axes[i].set_title(f"QQ Plot - {col}")
+            lista_axes[i].grid(True, alpha=0.3)
+            #Estética dos eixos
+            lista_axes[i].set_xlabel("Quantis Teóricos")
+            lista_axes[i].set_ylabel("Valores Ordenados")
+
+        plt.tight_layout()
+        plt.show()
 
 #######################
 #         EDA         #
