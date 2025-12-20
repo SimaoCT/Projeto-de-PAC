@@ -256,18 +256,18 @@ def analise_normalidade(df):
 def visualizar_primeiros_10():
     """Mostra os primeiros 10 registos em tabela."""
     
-    print("\n" + "="*100)
-    print("PRIMEIROS 10 REGISTOS")
-    print("="*100)
+    print("\n" + "="*60)
+    print("="+f"{"PRIMEIROS 10 REGISTOS":^58}"+"=")
+    print("="*60)
     print(tabulate(df.head(10), headers="keys", tablefmt="github", showindex=True))
     print()
 
 def visualizar_ultimos_10():
     """Mostra os últimos 10 registos em tabela."""
     
-    print("\n" + "="*100)
-    print("ÚLTIMOS 10 REGISTOS")
-    print("="*100)
+    print("\n" + "="*60)
+    print("="+f"{"ÚLTIMOS 10 REGISTOS":^58}"+"=")
+    print("="*60)
     print(tabulate(df.tail(10), headers="keys", tablefmt="github", showindex=True))
     print()
 
@@ -275,21 +275,21 @@ def visualizar_aleatorios_10():
     """Mostra 10 registos aleatórios em tabela."""
     
     amostra = df.sample(n=10, random_state=None)
-    print("\n" + "="*100)
-    print("10 REGISTOS ALEATÓRIOS")
-    print("="*100)
+    print("\n" + "="*60)
+    print("="+f"{"10 REGISTOS ALEATÓRIOS":^58}"+"=")
+    print("="*60)
     print(tabulate(amostra, headers="keys", tablefmt="github", showindex=True))
     print()
 
 def visualizar_tabela_completa():
     """Mostra a tabela completa (pode ser grande)."""
     
-    print("\n" + "="*100)
-    print(f"TABELA COMPLETA ({df.shape[0]} registos)")
-    print("="*100)
+    print("\n" + "="*60)
+    print("="+f"TABELA COMPLETA ({df.shape[0]} registos)".center(58)+"=")
+    print("="*60)
     # Para tabelas muito grandes, mostrar em partes
     if df.shape[0] > 50:
-        print("⚠ Tabela com muitos registos. Mostrando em duas partes:\n")
+        print("⚠ Tabela com muitos registos. Dividida em duas partes:\n")
         print("PARTE 1 (primeiros 25):")
         print(tabulate(df.head(25), headers="keys", tablefmt="github", showindex=True, maxcolwidths=15))
         print("\n...\n")
@@ -350,7 +350,7 @@ def menu_tabelas_frequencias():
     
     while True:
         print("\n" + "="*60)
-        print(f"{"TABELAS DE FREQUÊNCIAS":^60}")
+        print("="+f"{"TABELAS DE FREQUÊNCIAS":^58}"+"=")
         print("="*60)
         print("1 - Tabela univariada (variável categórica)")
         print("2 - Tabela bivariada (duas variáveis categóricas)")
@@ -372,9 +372,9 @@ def menu_tabelas_frequencias():
                     
                     tabela = tabela_frequencias_univariada(coluna)
                     if tabela is not None:
-                        print("\n" + "="*80)
-                        print(f"FREQUÊNCIAS - {coluna} ")
-                        print("="*80)
+                        print("\n" + "="*60)
+                        print("="+f"FREQUÊNCIAS - {coluna}".center(58)+"=")
+                        print("="*60)
                         print(tabulate(tabela, headers="keys", tablefmt="github"))
                         print()
 
@@ -393,9 +393,9 @@ def menu_tabelas_frequencias():
                     
                     tabela = tabela_frequencias_bivariada(col1, col2)
                     if tabela is not None:
-                        print("\n" + "="*80)
-                        print(f"TABELA CRUZADA - {col1} vs {col2}")
-                        print("="*80)
+                        print("\n" + "="*60)
+                        print("="+f"TABELA CRUZADA - {col1} vs {col2}".center(58)+"=")
+                        print("="*60)
                         print(tabulate(tabela, headers="keys", tablefmt="github"))
                         print()
 
@@ -476,7 +476,7 @@ def menu_graficos_univariados():
     
     while True:
         print("\n" + "="*60)
-        print(f"{"GRÁFICOS UNIVARIADOS":^60}")
+        print("="+f"{"GRÁFICOS UNIVARIADOS":^58}"+"=")
         print("="*60)
         print("1 - Histograma (variável numérica)")
         print("2 - Gráfico de Barras (variável categórica)")
@@ -571,9 +571,9 @@ def menu_estatisticas_grupos():
                     stats_num.index = ['N', 'Média', 'Desvio Padrão', 'Mínimo', 'Máximo', 'Q1', 'Mediana', 'Q3']
                     tabela_stats = stats_num.to_frame(name="Valor")
 
-                    print("\n" + "="*100)
-                    print(f"ESTATÍSTICAS DE {col.upper()}")
-                    print("="*100)
+                    print("\n" + "="*60)
+                    print("="+f"ESTATÍSTICAS DE {col.upper()}".center(58)+"=")
+                    print("="*60)
                     print(tabulate(tabela_stats, headers="keys", tablefmt="github", floatfmt=".2f"))
                     print()
                         
@@ -615,9 +615,9 @@ def menu_estatisticas_grupos():
                     ])
                     stats_gp.columns = ['N', 'Média', 'Desvio Padrão', 'Mínimo', 'Máximo', 'Q1', 'Mediana', 'Q3']
                     
-                    print("\n" + "="*100)
-                    print(f"ESTATÍSTICAS DE {col_num.upper()} POR {col_grupo.upper()}")
-                    print("="*100)
+                    print("\n" + "="*60)
+                    print("="+f"ESTATÍSTICAS DE {col_num.upper()} POR {col_grupo.upper()}".center(58)+"=")
+                    print("="*60)
                     print(tabulate(stats_gp, headers="keys", tablefmt="github", floatfmt=".2f"))
                     print()
 
@@ -641,7 +641,7 @@ def menu_visualizaçao_geral():
 
     while True:
         print("\n" + "="*60)
-        print(f"{"VISUALIZAÇÃO GERAL":^60}")
+        print("="+f"{"VISUALIZAÇÃO GERAL":^58}"+"=")
         print("="*60)
         print("1 - Tipo de variáveis existentes")
         print("2 - Primeiros 10 registos")
@@ -682,7 +682,7 @@ def menu_eda():
     
     while True:
         print("\n" + "="*60)
-        print(f"{"ANÁLISE EXPLORATÓRIA DE DADOS (EDA)":^60}")
+        print("="+f"{"ANÁLISE EXPLORATÓRIA DE DADOS (EDA)":^58}"+"=")
         print("="*60)
         print("1 - Tabelas de Frequências")
         print("2 - Gráficos Univariados")
