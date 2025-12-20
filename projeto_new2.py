@@ -27,6 +27,11 @@ import os
 import scipy.stats as stats
 from tabulate import tabulate
 from datetime import datetime
+#se não está instalado para as próximas bibliotecas fazer "pip install scikit-learn"
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 
 ###########################
 #    Pré processamento    #
@@ -638,7 +643,64 @@ def menu_estatisticas_grupos():
                 print("\n✗ Escolha inválida!")
         except ValueError:
             print("\nAs suas escolhas são de 0 a 2!")
- 
+
+###########################
+#         Modelo          #
+###########################
+
+def reg_log(df):
+    #preparação dos dados para podermos aplicar o modelo
+    x = df.drop("Sleep_Disorder", axis = 1) #Variáveis independentes
+    y = df["Sleep_Disorder"] #Dependente - aquilo que queremos prever
+
+    x = pd.get_dummies(x, columns=["Gender", "Occupation", "BMI_Category"], drop_first=True) #transformar em números
+
+    le = LabelEncoder() # Aqui estamos a transformar as categorias em números
+    y = le.fit_transform(y)
+
+
+    print("Mapeamento das Classes:", dict(zip(le.classes_, le.transform(le.classes_))))
+    print("-" * 35)
+    '''
+    aqui estamos a criar um dicionário que é a nossa cábula para os números:
+    o le.classes tem as nossas palavras originais
+    o le.transform vai transformar nos números correspondentes
+    a função zip formece ao dict os pares key+value
+    '''
+    #Chunk de treino e teste
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=123)
+
+    scaler = StandardScaler() #Ajustar as escalas dos valores para não influenciar o modelo
+
+    x_train_scaled = scaler.fit_transform(x_train)
+    x_test_scaled = scaler.transform(x_test)
+
+    modelo = LogisticRegression(max_iter=1000, random_state=123)
+    modelo.fit(x_train_scaled,y_train) #treino do modelo
+
+    y_pred = modelo.predict(x_test_scaled) #teste do modelo
+
+    #avaliação do modelo
+    print(f"Acurácia: {accuracy_score(y_test, y_pred):.2f}\n")
+    print("Relatório de Classificação:\n")
+    print(classification_report(y_test, y_pred, target_names=le.classes_))
+    
+    
+    resposta = input("\nQuer visualizar a matriz de confusão?? (s/n) ").lower().strip()
+
+    if resposta in ["s", "sim", "y", "yes"]:
+        #matriz de confusão
+        plt.figure(figsize=(8, 6))
+        sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt="d", cmap="plasma",
+                xticklabels=le.classes_, yticklabels=le.classes_)
+        plt.title("Matriz de Confusão - Sleep Disorder")
+        plt.ylabel('Verdadeiro')
+        plt.xlabel('Previsto')
+        plt.show()
+    else:
+        return
+
+
 
 
 ###########################
@@ -732,11 +794,12 @@ def main():
         print("2 - Análise Exploratória de Dados(EDA)")
         print("3 - Avaliação da Normalidade")
         print("4 - Guardar Dados em Ficheiro")
+        print("5 - Modelo")
         print("0 - Sair")
         print("="*60)
         
         try:
-            opt = int(input("Qual a sua opção? "))
+            opt = int(input("Qual a sua opção? ").strip())
             if opt == 0:
                 print("\nA fechar o programa...\n")
                 break
@@ -748,11 +811,13 @@ def main():
                 analise_normalidade(df)
             elif opt == 4:
                 guardar(df)
+            elif opt == 5:
+                reg_log(df)
             else:
                 print("\n✗ Escolha inválida!")
 
         except ValueError:
-            print("\nAs suas escolhas são de 0 a 4!")
+            print("\nAs suas escolhas são de 0 a 5!")
 
 
 if __name__ == "__main__":
