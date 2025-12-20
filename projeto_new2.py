@@ -19,6 +19,7 @@ Sleep Disorder: The presence or absence of a sleep disorder in the person (None,
 ############################
 #     Library imports      #
 ############################
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -32,7 +33,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
-
 
 ###########################
 #    Pré processamento    #
@@ -56,34 +56,36 @@ df["BMI Category"] = df["BMI Category"].replace("Normal Weight", "Normal")
 #Limpar nomes de colunas (remover espaços)
 df.columns = df.columns.str.replace(" ", "_")
 
-
 #Tipos de variáveis
 
 tipos_variaveis = {}
-  
-tipos_variaveis.clear()
      
 for i, coluna in enumerate(df.columns, 1):
     tipo = "numérica" if pd.api.types.is_numeric_dtype(df[coluna]) else "categórica"
     tipos_variaveis[coluna] = tipo.lower()
 
 
+#####################
+#      Funções      #
+#####################
 
-######################
-#       Funções      #
-######################
 
 #Variáveis númericas
+
 def var_numerica(coluna):
     """Verifica se uma coluna é numérica segundo detecção automática."""
     return tipos_variaveis.get(coluna, 'desconhecida') == 'numérica'
 
+
 #variáveis categóricas
+
 def var_categorica(coluna):
     """Verifica se uma coluna é categórica segundo detecção automática."""
     return tipos_variaveis.get(coluna, 'desconhecida') == 'categórica'
 
+
 #Colunas por tipo de variável
+
 def obter_colunas_por_tipo(tipo):
 
     if tipo == 'numérica':
@@ -92,183 +94,24 @@ def obter_colunas_por_tipo(tipo):
         return [col for col in df.columns if var_categorica(col)]
     return []
 
-#Guardar em ficheiro (obrigatorio)      
-
-def guardar(df_save):
-    tipo_ficheiro = input("\nTipo de formato (ex: csv, txt...): ").lower().strip()
-    nome_ficheiro = input(f"Nome do ficheiro (sem extensão): ").strip()
-
-
-    #Verifica o tipo de ficheiro
-    if tipo_ficheiro == "csv":
-        nome_final = f"{nome_ficheiro}.csv"
-    elif tipo_ficheiro == "excel" or tipo_ficheiro == "xlsx":
-        nome_final = f"{nome_ficheiro}.xlsx"
-    elif tipo_ficheiro == "txt" or tipo_ficheiro == "texto":
-        nome_final = f"{nome_ficheiro}.txt"
-    else:
-        print("Tipo de ficheiro desconhecido")
-        return
-    
-    #Verifica se o nome do ficheiro já existe
-    if os.path.exists(nome_final):
-        rescrever = input(f"\nO ficheiro {nome_final} já existe.\nDeseja substituí-lo? (s/n)").lower()
-        if rescrever != "s":
-            print("Operação cancelada. Ficheiro não foi guardado")
-            return
-
-    #Guarda o ficheiro
-    try:
-        if tipo_ficheiro == "csv":
-            df_save.to_csv(nome_final, index = True)
-            print(f"Ficheiro Guardado como: {nome_final}")
-        
-        elif tipo_ficheiro == "excel" or tipo_ficheiro == "xlsx":
-            df_save.to_excel(nome_final, index = True, engine = "openpyxl")
-            print(f"Ficheiro Guardado como: {nome_final}")
-
-        elif tipo_ficheiro == "txt" or tipo_ficheiro == "texto":
-            df_save.to_csv(nome_final, sep = "\t", index = True)
-            print(f"Ficheiro Guardado como: {nome_final}")
-            
-        
-    except ModuleNotFoundError:
-        print("ERRO: Falta o módulo openpyxl\nPara instalar correr no terminal: pip install openpyxl")
-    
-    except PermissionError:
-        print("ERRO: Foi obtido um erro de permissão\nVerifica se o ficheiro está aberto.")
-    
-    except OSError:
-        print("ERRO: O nome tem caracteres inválidos")
-    
-    except Exception as a:
-        print(f"ERRO: {a}")
-    
-def estat():
-    nome_var = input("\nQue variável ('Enter' para todas as variáveis)? ").strip()
-
-    def calcs(serie, nome_var):
-        #Medidas de Localização 
-        media = serie.mean()
-        mediana = serie.median()
-        moda = serie.mode()
-        minimo = serie.min()
-        maximo = serie.max()
-        q1 = serie.quantile(0.25)
-        q3 = serie.quantile(0.75)
-
-
-        print(f"{"-"*35}")
-        print(f"Estatísticas de Localização: {nome_var}")
-        print(f"\nMédia: {media:.2f}")
-        if len(moda) == 1:
-            print(f"Moda: {moda.iloc[0]}") #O iloc[0] é para não termoso "lixo" que fica na tela
-        else:
-            print(f"Moda: {moda.tolist()} (multimoda)")
-        print(f"Mínimo: {minimo:.2f}")
-        print(f"1º Quartil: {q1:.2f}")
-        print(f"Mediana: {mediana:.2f}")
-        print(f"3º Quartil: {q3:.2f}")
-        print(f"Máximo: {maximo:.2f}")
-
-    
-    if not nome_var:
-        colunas_num = df.select_dtypes(include = "number").columns
-        print(f"Estatísticas de localização para as {len(colunas_num)} variáveis numéricas\n")
-
-        for col in colunas_num:
-            calcs(df[col],col)
-    
-    else:
-        if nome_var not in df.columns:
-            print(f"{nome_var} não faz parte do conjunto de dados. Escolha outra variável")
-            return
-        
-        serie = df[nome_var]
-
-        if not pd.api.types.is_numeric_dtype(serie):
-            print("A variável tem de ser numérica")
-            return
-        
-        calcs(serie,nome_var)
-
-    
-def vars():
-    print(f'{"\nNº":<5} {"Nome da Variável":<30} {"Tipo de Dado"}')
-    print("-" * 45)
-    for i, coluna in enumerate(df.columns, 1):
-        tipo = tipos_variaveis[coluna].capitalize()  # "numérica" -> "Numérica"
-        print(f"{i:<5}{coluna:<30}{tipo}")
-
-
-def analise_normalidade(df):
-    nome_vars = input("\nQual o nome da variável? ('Enter' para todas) ").strip()
-
-    obj = []
-
-    def teste(dados, nome_vars):
-        stat, p_value = stats.shapiro(dados)
-        alpha = 0.05
-        print(f"\n{'-'*35}")
-        print(f"Análise de normalidade: {nome_vars}")
-        print(f"{'-'*35}")
-        print(f"Pressupostos:\nH0: Há normalidade vs H1: Não há normalidade\n")
-        print(f"Estatística de teste: {stat:.4f}")
-        print(f"p-Value: {p_value:.6f}")
-
-        if p_value > alpha:
-            print("Não rejeitamos H0, logo podemos aceitar a hipótese de normalidade")
-        else:
-            print("Rejeitamos H0, logo rejeitamos a hipótese de normalidade")
-
-    if not nome_vars:
-        obj = df.select_dtypes(include = "number").columns
-        print(f"Análise de normalidade para as {len(obj)} variáveis numéricas\n")
-    
-    else:
-        if nome_vars not in df.columns:
-            print(f"{nome_vars} não faz parte do conjunto de dados. Escolha outra variável")
-            return
-
-        if not pd.api.types.is_numeric_dtype(df[nome_vars]):
-            print("A variável tem de ser numérica")
-            return
-        
-        obj = [nome_vars]
-        
-    for col in obj:
-        dados = df[col].dropna()
-        teste(dados,col)
-
-    # A partir daqui é visualização dos qq plots
-    resposta = input("\nQuer visualizar o(s) QQ-Plot(s)? (s/n) ").lower().strip()
-
-    if resposta in ["s", "sim", "y", "yes"]:
-        
-        if len(obj) == 1:
-            # Caso 1: Apenas 1 gráfico
-            fig, ax = plt.subplots(figsize=(6, 5))
-            lista_axes = [ax] # Colocamos numa lista para o loop funcionar igual
-        else:
-            fig, axes = plt.subplots(3, 3, figsize=(10, 6))
-            lista_axes = axes.flatten() #Colocar numa lista que na verdade é um vetor
-
-        # Loop que funciona para os dois casos
-        for i, col in enumerate(obj):
-            stats.probplot(df[col].dropna(), dist="norm", plot=lista_axes[i])
-            
-            lista_axes[i].set_title(f"QQ Plot - {col}")
-            lista_axes[i].grid(True, alpha=0.3)
-            #Estética dos eixos
-            lista_axes[i].set_xlabel("Quantis Teóricos")
-            lista_axes[i].set_ylabel("Valores Ordenados")
-
-        plt.tight_layout()
-        plt.show()
 
 ########################
 #  Visualização Geral  #
 ########################
+
+def vars():
+    """Lista as variáveis do dataset com o respetivo tipo (numérica/categórica)."""
+
+    print("\n" + "="*60)
+    print("=" + f"{'TIPOS DE VARIÁVEIS':^58}" + "=")
+    print("="*60)
+    print(f"{'Nº':<4} {'Nome da Variável':<29} {'Tipo de Dado'}")
+    print("-" * 60)
+
+    for i, coluna in enumerate(df.columns, 1):
+        tipo = tipos_variaveis.get(coluna, "desconhecida").capitalize()
+        print(f"{i:<5}{coluna:<30}{tipo}")
+
 
 def visualizar_primeiros_10():
     """Mostra os primeiros 10 registos em tabela."""
@@ -279,6 +122,7 @@ def visualizar_primeiros_10():
     print(tabulate(df.head(10), headers="keys", tablefmt="github", showindex=True))
     print()
 
+
 def visualizar_ultimos_10():
     """Mostra os últimos 10 registos em tabela."""
     
@@ -287,6 +131,7 @@ def visualizar_ultimos_10():
     print("="*60)
     print(tabulate(df.tail(10), headers="keys", tablefmt="github", showindex=True))
     print()
+
 
 def visualizar_aleatorios_10():
     """Mostra 10 registos aleatórios em tabela."""
@@ -297,6 +142,7 @@ def visualizar_aleatorios_10():
     print("="*60)
     print(tabulate(amostra, headers="keys", tablefmt="github", showindex=True))
     print()
+
 
 def visualizar_tabela_completa():
     """Mostra a tabela completa (pode ser grande)."""
@@ -316,12 +162,13 @@ def visualizar_tabela_completa():
         print(tabulate(df, headers="keys", tablefmt="github", showindex=True))
     print()
 
+
 #######################
 #         EDA         #
 #######################
 
-
 #Tabelas de frequências
+
 def tabela_frequencias_univariada(coluna):
 
     try:
@@ -424,9 +271,7 @@ def menu_tabelas_frequencias():
                 
         except ValueError:
             print("\nAs escolhas são de 0 a 2!")
-            
-        
-        
+
 
 #Gráficos univariados
 
@@ -548,7 +393,204 @@ def menu_graficos_univariados():
         except ValueError:
             print("\nAs escolhas são de 0 a 3!")
 
-        
+
+#Gráficos bivariados
+
+def grafico_bivariado_scatter(col_x, col_y, col_cor=None):
+    """
+    Scatter plot entre duas variáveis numéricas.
+    Opcionalmente colorido por variável categórica.
+    """
+    try:
+        plt.figure(figsize=(10, 6))
+
+        if col_cor is not None:
+            # Colorir por categoria
+            categorias = df[col_cor].astype(str)
+            categorias_unicas = categorias.unique()
+            palette = sns.color_palette("tab10", len(categorias_unicas))
+            cores = dict(zip(categorias_unicas, palette))
+
+            for cat in categorias_unicas:
+                mask = categorias == cat
+                plt.scatter(
+                    df.loc[mask, col_x],
+                    df.loc[mask, col_y],
+                    label=cat,
+                    color=cores[cat],
+                    alpha=0.7,
+                    edgecolor='black'
+                )
+            plt.legend(title=col_cor, bbox_to_anchor=(1.05, 1), loc='upper left')
+        else:
+            # Sem agrupamento por cor
+            plt.scatter(df[col_x], df[col_y], color='steelblue', alpha=0.7, edgecolor='black')
+
+        plt.xlabel(col_x, fontsize=12)
+        plt.ylabel(col_y, fontsize=12)
+        plt.title(f"Scatter Plot - {col_x} vs {col_y}", fontsize=14, fontweight='bold')
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        plt.show()
+
+    except Exception as e:
+        print(f"\n✗ Erro ao criar scatter plot: {e}")
+
+
+def grafico_bivariado_boxplot(col_cat, col_num):
+    """
+    Boxplot de uma variável numérica por grupos de uma variável categórica.
+    """
+    try:
+        plt.figure(figsize=(10, 6))
+        sns.boxplot(x=df[col_cat], y=df[col_num])
+        plt.xlabel(col_cat, fontsize=12)
+        plt.ylabel(col_num, fontsize=12)
+        plt.title(f"Boxplot - {col_num} por {col_cat}", fontsize=14, fontweight='bold')
+        plt.xticks(rotation=45, ha='right')
+        plt.grid(True, alpha=0.3, axis='y')
+        plt.tight_layout()
+        plt.show()
+
+    except Exception as e:
+        print(f"\n✗ Erro ao criar boxplot bivariado: {e}")
+
+
+def grafico_bivariado_heatmap(col1, col2):
+    """
+    Heatmap de tabela de contingência entre duas variáveis categóricas.
+    """
+    if not (var_categorica(col1) and var_categorica(col2)):
+        print("\n✗ Heatmap requer duas variáveis categóricas!\n")
+        return
+
+    try:
+        tabela = pd.crosstab(df[col1], df[col2])
+
+        plt.figure(figsize=(10, 6))
+        sns.heatmap(tabela, annot=True, fmt="d", cmap="YlOrRd")
+        plt.title(f"Heatmap - {col1} vs {col2}", fontsize=14, fontweight='bold')
+        plt.xlabel(col2)
+        plt.ylabel(col1)
+        plt.tight_layout()
+        plt.show()
+
+    except Exception as e:
+        print(f"\n✗ Erro ao criar heatmap: {e}")
+
+
+def menu_graficos_bivariados():
+    """Menu para gráficos bivariados."""
+    
+    colunas_numericas = obter_colunas_por_tipo('numérica')
+    colunas_categoricas = obter_colunas_por_tipo('categórica')
+
+    while True:
+        print("\n" + "="*60)
+        print("=" + f"{'GRÁFICOS BIVARIADOS':^58}" + "=")
+        print("="*60)
+        print("1 - Scatter Plot (2 numéricas, opcionalmente colorido por categórica)")
+        print("2 - Boxplot (numérica por categórica)")
+        print("3 - Heatmap (2 categóricas)")
+        print("0 - Voltar")
+        print("="*60)
+
+        try:
+            opt = int(input("Escolha uma opção: "))
+        except ValueError:
+            print("\nAs escolhas são de 0 a 3!")
+            continue
+
+        if opt == 0:
+            break
+
+        # 1) Scatter Plot
+        elif opt == 1:
+            if len(colunas_numericas) < 2:
+                print("\n✗ Necessita de pelo menos 2 variáveis numéricas!\n")
+                continue
+
+            print("\nColunas numéricas:")
+            for i, col in enumerate(colunas_numericas, 1):
+                print(f"  {i}. {col}")
+
+            try:
+                idx_x = int(input("Escolha a variável para o eixo X (número): ")) - 1
+                idx_y = int(input("Escolha a variável para o eixo Y (número): ")) - 1
+                col_x = colunas_numericas[idx_x]
+                col_y = colunas_numericas[idx_y]
+            except (ValueError, IndexError):
+                print("\n✗ Escolha inválida!")
+                continue
+
+            # Cor opcional por categórica
+            col_cor = None
+            if colunas_categoricas:
+                print("\nColunas categóricas (para cor):")
+                print("  0. Sem cor (não agrupar)")
+                for i, col in enumerate(colunas_categoricas, 1):
+                    print(f"  {i}. {col}")
+                try:
+                    idx_cor = int(input("Escolha variável categórica para cor (0 para nenhuma): "))
+                    if idx_cor > 0:
+                        col_cor = colunas_categoricas[idx_cor - 1]
+                except (ValueError, IndexError):
+                    col_cor = None
+
+            grafico_bivariado_scatter(col_x, col_y, col_cor)
+
+        # 2) Boxplot numérica por categórica
+        elif opt == 2:
+            if not colunas_categoricas or not colunas_numericas:
+                print("\n✗ Necessita de pelo menos 1 categórica e 1 numérica!\n")
+                continue
+
+            print("\nColunas categóricas (agrupamento):")
+            for i, col in enumerate(colunas_categoricas, 1):
+                print(f"  {i}. {col}")
+            try:
+                idx_cat = int(input("Escolha a variável categórica (número): ")) - 1
+                col_cat = colunas_categoricas[idx_cat]
+            except (ValueError, IndexError):
+                print("\n✗ Escolha inválida!")
+                continue
+
+            print("\nColunas numéricas:")
+            for i, col in enumerate(colunas_numericas, 1):
+                print(f"  {i}. {col}")
+            try:
+                idx_num = int(input("Escolha a variável numérica (número): ")) - 1
+                col_num = colunas_numericas[idx_num]
+            except (ValueError, IndexError):
+                print("\n✗ Escolha inválida!")
+                continue
+
+            grafico_bivariado_boxplot(col_cat, col_num)
+
+        # 3) Heatmap 2 categóricas
+        elif opt == 3:
+            if len(colunas_categoricas) < 2:
+                print("\n✗ Necessita de pelo menos 2 variáveis categóricas!\n")
+                continue
+
+            print("\nColunas categóricas:")
+            for i, col in enumerate(colunas_categoricas, 1):
+                print(f"  {i}. {col}")
+
+            try:
+                idx1 = int(input("Escolha a 1ª variável (número): ")) - 1
+                idx2 = int(input("Escolha a 2ª variável (número): ")) - 1
+                col1 = colunas_categoricas[idx1]
+                col2 = colunas_categoricas[idx2]
+            except (ValueError, IndexError):
+                print("\n✗ Escolha inválida!")
+                continue
+
+            grafico_bivariado_heatmap(col1, col2)
+
+        else:
+            print("\n✗ Escolha inválida!")
+
 
 #Estatísticas por grupo
 
@@ -645,12 +687,81 @@ def menu_estatisticas_grupos():
         except ValueError:
             print("\nAs suas escolhas são de 0 a 2!")
 
+
+#Análise da normalidade
+
+def analise_normalidade():
+
+    colunas_numericas = obter_colunas_por_tipo('numérica')
+    while True:
+        print("\nVariáveis disponíveis:")
+        for i, col in enumerate(colunas_numericas, 1):
+            print(f"  {i}. {col}")
+        print("  0. Voltar")
+
+        try:   
+            idx_num = int(input("\nEscolha uma variável: ")) - 1
+            col = colunas_numericas[idx_num]
+            obj = [col]
+
+            if idx_num == -1:
+                break
+            
+            def teste(dados, col):
+                stat, p_value = stats.shapiro(dados)
+                alpha = 0.05
+
+                print("\n" + "="*60)
+                print("="+f"Análise de normalidade: {col}".center(58)+"=")
+                print("="*60)
+                print(f"Pressupostos:\nH0: Há normalidade vs H1: Não há normalidade\n")
+                print(f"Estatística de teste: {stat:.4f}")
+                print(f"p-Value: {p_value:.6f}")
+
+                if p_value > alpha:
+                    print("Não rejeitamos H0, logo podemos aceitar a hipótese de normalidade")
+                else:
+                    print("Rejeitamos H0, logo rejeitamos a hipótese de normalidade")             
+                
+            for x in obj:
+                dados = df[x].dropna()
+                teste(dados,x)
+
+            # A partir daqui é visualização dos qq plots
+            resposta = input("\nQuer visualizar o(s) QQ-Plot(s)? (s/n) ").lower().strip()
+
+            if resposta in ["s", "sim", "y", "yes"]:
+                
+                if len(obj) == 1:
+                    # Caso 1: Apenas 1 gráfico
+                    fig, ax = plt.subplots(figsize=(6, 5))
+                    lista_axes = [ax] # Colocamos numa lista para o loop funcionar igual
+                else:
+                    fig, axes = plt.subplots(3, 3, figsize=(10, 6))
+                    lista_axes = axes.flatten() #Colocar numa lista que na verdade é um vetor
+
+                # Loop que funciona para os dois casos
+                for i, col_n in enumerate(obj):
+                    stats.probplot(df[col_n].dropna(), dist="norm", plot=lista_axes[i])
+                    
+                    lista_axes[i].set_title(f"QQ Plot - {col_n}")
+                    lista_axes[i].grid(True, alpha=0.3)
+                    #Estética dos eixos
+                    lista_axes[i].set_xlabel("Quantis Teóricos")
+                    lista_axes[i].set_ylabel("Valores Ordenados")
+
+                plt.tight_layout()
+                plt.show()
+        except (ValueError, IndexError):
+            print("\n✗ Escolha inválida!")
+
+
 ###########################
 #         Modelo          #
 ###########################
 
 def reg_log(df):
-    print("A preparar os dados para a construção do modelo")
+    print("\nA preparar os dados para a construção do modelo...")
     #preparação dos dados para podermos aplicar o modelo
     x = df.drop("Sleep_Disorder", axis = 1) #Variáveis independentes
     y = df["Sleep_Disorder"] #Dependente - aquilo que queremos prever
@@ -660,9 +771,11 @@ def reg_log(df):
     le = LabelEncoder() # Aqui estamos a transformar as categorias em números
     y = le.fit_transform(y)
 
-
+    print("\n" + "="*60)
+    print("="+f"{"MODELO":^58}"+"=")
+    print("=" * 60)
     print("Mapeamento das Classes:", dict(zip(le.classes_, le.transform(le.classes_))))
-    print("-" * 35)
+
     '''
     aqui estamos a criar um dicionário que é a nossa cábula para os números:
     o le.classes tem as nossas palavras originais
@@ -679,7 +792,7 @@ def reg_log(df):
 
     modelo = LogisticRegression(max_iter=1000, random_state=123)
     modelo.fit(x_train_scaled,y_train) #treino do modelo
-    print("Modelo concluído!")
+    print("\nModelo concluído!")
     
     y_pred = modelo.predict(x_test_scaled) #teste do modelo
 
@@ -695,7 +808,7 @@ def reg_log(df):
     report = report.replace("weighted avg", "Média Ponde.")
     print(report)
     
-    resposta = input("\nQuer visualizar a matriz de confusão?? (s/n) ").lower().strip()
+    resposta = input("\nQuer visualizar a matriz de confusão? (s/n) ").lower().strip()
 
     if resposta in ["s", "sim", "y", "yes"]:
         #matriz de confusão
@@ -708,6 +821,62 @@ def reg_log(df):
         plt.show()
     else:
         return
+
+
+############################
+#     Guardar Ficheiro     #
+############################    
+
+def guardar():
+    tipo_ficheiro = input("\nTipo de formato (ex: csv, txt...): ").lower().strip()
+    nome_ficheiro = input(f"Nome do ficheiro (sem extensão): ").strip()
+
+
+    #Verifica o tipo de ficheiro
+    if tipo_ficheiro == "csv":
+        nome_final = f"{nome_ficheiro}.csv"
+    elif tipo_ficheiro == "excel" or tipo_ficheiro == "xlsx":
+        nome_final = f"{nome_ficheiro}.xlsx"
+    elif tipo_ficheiro == "txt" or tipo_ficheiro == "texto":
+        nome_final = f"{nome_ficheiro}.txt"
+    else:
+        print("Tipo de ficheiro desconhecido")
+        return
+    
+    #Verifica se o nome do ficheiro já existe
+    if os.path.exists(nome_final):
+        rescrever = input(f"\nO ficheiro {nome_final} já existe.\nDeseja substituí-lo? (s/n)").lower()
+        if rescrever != "s":
+            print("Operação cancelada. Ficheiro não foi guardado")
+            return
+
+    #Guarda o ficheiro
+    try:
+        if tipo_ficheiro == "csv":
+            df.to_csv(nome_final, index = True)
+            print(f"Ficheiro Guardado como: {nome_final}")
+        
+        elif tipo_ficheiro == "excel" or tipo_ficheiro == "xlsx":
+            df.to_excel(nome_final, index = True, engine = "openpyxl")
+            print(f"Ficheiro Guardado como: {nome_final}")
+
+        elif tipo_ficheiro == "txt" or tipo_ficheiro == "texto":
+            df.to_csv(nome_final, sep = "\t", index = True)
+            print(f"Ficheiro Guardado como: {nome_final}")
+            
+        
+    except ModuleNotFoundError:
+        print("ERRO: Falta o módulo openpyxl\nPara instalar correr no terminal: pip install openpyxl")
+    
+    except PermissionError:
+        print("ERRO: Foi obtido um erro de permissão\nVerifica se o ficheiro está aberto.")
+    
+    except OSError:
+        print("ERRO: O nome tem caracteres inválidos")
+    
+    except Exception as a:
+        print(f"ERRO: {a}")
+
 
 ###########################
 #         Menus           #
@@ -725,8 +894,7 @@ def menu_visualizaçao_geral():
         print("2 - Primeiros 10 registos")
         print("3 - Últimos 10 registos")
         print("4 - 10 registos aleatórios")
-        print("5 - Estatísticas de Localização")
-        print("6 - Tabela completa")
+        print("5 - Tabela completa")
         print("0 - Voltar ao menu principal")
         print("="*60)       
 
@@ -744,14 +912,12 @@ def menu_visualizaçao_geral():
             elif opt == 4:
                 visualizar_aleatorios_10()
             elif opt == 5:
-                estat()
-            elif opt == 6:
                 visualizar_tabela_completa()
             else:
                 print("\n✗ Escolha inválida!")
 
         except ValueError:
-            print("\nAs suas escolhas são de 0 a 6!")
+            print("\nAs suas escolhas são de 0 a 5!")
 
 
 #Menu EDA
@@ -766,6 +932,7 @@ def menu_eda():
         print("2 - Gráficos Univariados")
         print("3 - Gráficos Bivariados")
         print("4 - Estatísticas por Grupos")
+        print("5 - Avaliação da Normalidade")
         print("0 - Voltar ao menu principal")
         print("="*60)
         
@@ -779,14 +946,16 @@ def menu_eda():
             elif opt == 2:
                 menu_graficos_univariados()
             elif opt == 3:
-                print("Fora de serviço!")
+                menu_graficos_bivariados()
             elif opt == 4:
                 menu_estatisticas_grupos()
+            elif opt == 5:
+                analise_normalidade()
             else:
                 print("\n✗ Escolha inválida!")
             
         except ValueError:
-            print("\nAs suas escolhas são de 0 a 4!")
+            print("\nAs suas escolhas são de 0 a 5!")
 
 
 #Menu Global de Visualização (obrigatorio)
@@ -797,9 +966,8 @@ def main():
         print("="*60)
         print("1 - Visualização Geral")
         print("2 - Análise Exploratória de Dados(EDA)")
-        print("3 - Avaliação da Normalidade")
+        print("3 - Modelo")
         print("4 - Guardar Dados em Ficheiro")
-        print("5 - Modelo Logístico")
         print("0 - Sair")
         print("="*60)
         
@@ -813,16 +981,14 @@ def main():
             elif opt == 2:
                 menu_eda()
             elif opt == 3:
-                analise_normalidade(df)
+                reg_log(df)            
             elif opt == 4:
-                guardar(df)
-            elif opt == 5:
-                reg_log(df)
+                guardar()
             else:
                 print("\n✗ Escolha inválida!")
 
         except ValueError:
-            print("\nAs suas escolhas são de 0 a 5!")
+            print("\nAs suas escolhas são de 0 a 4!")
 
 
 if __name__ == "__main__":
