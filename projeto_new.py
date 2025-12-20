@@ -20,14 +20,13 @@ Sleep Disorder: The presence or absence of a sleep disorder in the person (None,
 #     Library imports      #
 ############################
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 import scipy.stats as stats
 from tabulate import tabulate
-import math
 from datetime import datetime
-import numpy as np
 
 ###########################
 #    Pré processamento    #
@@ -139,7 +138,7 @@ def guardar(df_save):
     except Exception as a:
         print(f"ERRO: {a}")
     
-def estat(df):
+def estat():
     nome_var = input("\nQue variável ('Enter' para todas as variáveis)? ").strip()
 
     def calcs(serie, nome_var):
@@ -234,32 +233,71 @@ def analise_normalidade(df):
     for col in obj:
         dados = df[col].dropna()
         teste(dados,col)
-    
-    # A partir daqui é visualização dos qq plots
+'''
+    #A partir daqui é visualização dos qq plots
     resposta = input("\nQuer visualizar o(s) QQ-Plot(s)? (s/n) ").lower().strip()
 
     if resposta in ["s", "sim", "y", "yes"]:
-        
-        if len(obj) == 1:
-            # Caso 1: Apenas 1 gráfico
-            fig, ax = plt.subplots(figsize=(6, 5))
-            lista_axes = [ax] # Colocamos numa lista para o loop funcionar igual
-        else:
-            fig, axes = plt.subplots(3, 3, figsize=(10, 6))
-            lista_axes = axes.flatten() #Colocar numa lista que na verdade é um vetor
-
-        # Loop que funciona para os dois casos
-        for i, col in enumerate(obj):
-            stats.probplot(df[col].dropna(), dist="norm", plot=lista_axes[i])
+        for col in obj:
+            dados_limpos = df[col].dropna()
             
-            lista_axes[i].set_title(f"QQ Plot - {col}")
-            lista_axes[i].grid(True, alpha=0.3)
-            #Estética dos eixos
-            lista_axes[i].set_xlabel("Quantis Teóricos")
-            lista_axes[i].set_ylabel("Valores Ordenados")
+            plt.figure(figsize=(6, 4))
+            stats.probplot(dados_limpos, dist="norm", plot=plt)
+            plt.title(f"QQ Plot - {col}")
+            plt.grid(True, alpha=0.3)
+            plt.show()
 
-        plt.tight_layout()
-        plt.show()
+'''
+
+########################
+#  Visualização Geral  #
+########################
+
+def visualizar_primeiros_10():
+    """Mostra os primeiros 10 registos em tabela."""
+    
+    print("\n" + "="*100)
+    print("PRIMEIROS 10 REGISTOS")
+    print("="*100)
+    print(tabulate(df.head(10), headers="keys", tablefmt="github", showindex=True))
+    print()
+
+def visualizar_ultimos_10():
+    """Mostra os últimos 10 registos em tabela."""
+    
+    print("\n" + "="*100)
+    print("ÚLTIMOS 10 REGISTOS")
+    print("="*100)
+    print(tabulate(df.tail(10), headers="keys", tablefmt="github", showindex=True))
+    print()
+
+def visualizar_aleatorios_10():
+    """Mostra 10 registos aleatórios em tabela."""
+    
+    amostra = df.sample(n=10, random_state=None)
+    print("\n" + "="*100)
+    print("10 REGISTOS ALEATÓRIOS")
+    print("="*100)
+    print(tabulate(amostra, headers="keys", tablefmt="github", showindex=True))
+    print()
+
+def visualizar_tabela_completa():
+    """Mostra a tabela completa (pode ser grande)."""
+    
+    print("\n" + "="*100)
+    print(f"TABELA COMPLETA ({df.shape[0]} registos)")
+    print("="*100)
+    # Para tabelas muito grandes, mostrar em partes
+    if df.shape[0] > 50:
+        print("⚠ Tabela com muitos registos. Mostrando em duas partes:\n")
+        print("PARTE 1 (primeiros 25):")
+        print(tabulate(df.head(25), headers="keys", tablefmt="github", showindex=True, maxcolwidths=15))
+        print("\n...\n")
+        print("PARTE 2 (últimos 25):")
+        print(tabulate(df.tail(25), headers="keys", tablefmt="github", showindex=True, maxcolwidths=15))
+    else:
+        print(tabulate(df, headers="keys", tablefmt="github", showindex=True))
+    print()
 
 #######################
 #         EDA         #
@@ -269,14 +307,6 @@ def analise_normalidade(df):
 #Tabelas de frequências
 def tabela_frequencias_univariada(coluna):
 
-    if coluna not in df.columns:
-        print(f"\n✗ Coluna '{coluna}' não existe no dataset.\n")
-        return None
-    
-    if not var_categorica(coluna):
-        print(f"\n✗ A coluna '{coluna}' é numérica. Tabela de frequências aplica-se apenas a variáveis categóricas.\n")
-        return None
-    
     try:
         frequencias = df[coluna].value_counts()
         percentagens = df[coluna].value_counts(normalize=True) * 100
@@ -329,54 +359,57 @@ def menu_tabelas_frequencias():
         
         try:
             opt = int(input("Escolha uma opção: "))
+            if opt == 0:
+                break
+            elif opt == 1:
+                print("\nColunas categóricas disponíveis:")
+                for i, col in enumerate(colunas_categoricas, 1):
+                    print(f"  {i}. {col}")
+                
+                try:
+                    idx = int(input("Escolha o número da coluna: ")) - 1
+                    coluna = colunas_categoricas[idx]
+                    
+                    tabela = tabela_frequencias_univariada(coluna)
+                    if tabela is not None:
+                        print("\n" + "="*80)
+                        print(f"FREQUÊNCIAS - {coluna} ")
+                        print("="*80)
+                        print(tabulate(tabela, headers="keys", tablefmt="github"))
+                        print()
+
+                except (ValueError, IndexError):
+                    print("\n✗ Escolha inválida!")       
+            elif opt == 2:
+                print("\nColunas categóricas disponíveis:")
+                for i, col in enumerate(colunas_categoricas, 1):
+                    print(f"  {i}. {col}")
+                
+                try:
+                    idx1 = int(input("Escolha a 1ª coluna (número): ")) - 1
+                    idx2 = int(input("Escolha a 2ª coluna (número): ")) - 1
+                    col1 = colunas_categoricas[idx1]
+                    col2 = colunas_categoricas[idx2]
+                    
+                    tabela = tabela_frequencias_bivariada(col1, col2)
+                    if tabela is not None:
+                        print("\n" + "="*80)
+                        print(f"TABELA CRUZADA - {col1} vs {col2}")
+                        print("="*80)
+                        print(tabulate(tabela, headers="keys", tablefmt="github"))
+                        print()
+
+                except (ValueError, IndexError):
+                    print("\n✗ Escolha inválida!")
+                    
+            else:
+                print("\n✗ Escolha inválida!")
+                
         except ValueError:
-            print("✗ Entrada inválida!\n")
-            continue
+            print("\nAs escolhas são de 0 a 2!")
+            
         
-        if opt == 0:
-            break
-        elif opt == 1:
-            print("\nColunas categóricas disponíveis:")
-            for i, col in enumerate(colunas_categoricas, 1):
-                print(f"  {i}. {col}")
-            
-            try:
-                idx = int(input("Escolha o número da coluna: ")) - 1
-                coluna = colunas_categoricas[idx]
-                
-                tabela = tabela_frequencias_univariada(coluna)
-                if tabela is not None:
-                    print("\n" + "="*80)
-                    print(f"FREQUÊNCIAS - {coluna} ")
-                    print("="*80)
-                    print(tabulate(tabela, headers="keys", tablefmt="github"))
-                    print()
-
-            except (ValueError, IndexError):
-                print("✗ Escolha inválida!\n")       
-        elif opt == 2:
-            print("\nColunas categóricas disponíveis:")
-            for i, col in enumerate(colunas_categoricas, 1):
-                print(f"  {i}. {col}")
-            
-            try:
-                idx1 = int(input("Escolha a 1ª coluna (número): ")) - 1
-                idx2 = int(input("Escolha a 2ª coluna (número): ")) - 1
-                col1 = colunas_categoricas[idx1]
-                col2 = colunas_categoricas[idx2]
-                
-                tabela = tabela_frequencias_bivariada(col1, col2)
-                if tabela is not None:
-                    print("\n" + "="*80)
-                    print(f"TABELA CRUZADA - {col1} vs {col2}")
-                    print("="*80)
-                    print(tabulate(tabela, headers="keys", tablefmt="github"))
-                    print()
-
-            except (ValueError, IndexError):
-                print("✗ Escolha inválida!\n")
-        else:
-            print("✗ Opção não reconhecida!\n")
+        
 
 #Gráficos univariados
 
@@ -395,7 +428,7 @@ def grafico_univariado_histograma(coluna):
         plt.show()
 
     except Exception as e:
-        print(f"\n✗ Erro ao criar gráfico: {e}\n")
+        print(f"\n✗ Erro ao criar gráfico: {e}")
 
 
 def grafico_univariado_barras(coluna):
@@ -415,7 +448,7 @@ def grafico_univariado_barras(coluna):
         plt.show()
 
     except Exception as e:
-        print(f"\n✗ Erro ao criar gráfico: {e}\n")
+        print(f"\n✗ Erro ao criar gráfico: {e}")
 
 
 def grafico_univariado_boxplot(coluna):
@@ -432,7 +465,7 @@ def grafico_univariado_boxplot(coluna):
         plt.show()
 
     except Exception as e:
-        print(f"\n✗ Erro ao criar gráfico: {e}\n")
+        print(f"\n✗ Erro ao criar gráfico: {e}")
 
 
 def menu_graficos_univariados():
@@ -453,47 +486,149 @@ def menu_graficos_univariados():
         
         try:
             opt = int(input("Escolha uma opção: "))
+
+            if opt == 0:
+                break
+            elif opt == 1:
+                print("\nColunas numéricas:")
+                for i, col in enumerate(colunas_numericas, 1):
+                    print(f"  {i}. {col}")
+                
+                try:
+                    idx = int(input("Escolha o número: ")) - 1
+                    coluna = colunas_numericas[idx]
+                    grafico_univariado_histograma(coluna)
+                except (ValueError, IndexError):
+                    print("\n✗ Escolha inválida!")
+
+            elif opt == 2:
+                print("\nColunas categóricas:")
+                for i, col in enumerate(colunas_categoricas, 1):
+                    print(f"  {i}. {col}")
+                
+                try:
+                    idx = int(input("Escolha o número: ")) - 1
+                    coluna = colunas_categoricas[idx]
+                    grafico_univariado_barras(coluna)
+                except (ValueError, IndexError):
+                    print("\n✗ Escolha inválida!")
+
+                
+            elif opt == 3:
+                print("\nColunas numéricas:")
+                for i, col in enumerate(colunas_numericas, 1):
+                    print(f"  {i}. {col}")
+                
+                try:
+                    idx = int(input("Escolha o número: ")) - 1
+                    coluna = colunas_numericas[idx]
+                    grafico_univariado_boxplot(coluna)
+                except (ValueError, IndexError):
+                    print("\n✗ Escolha inválida!")
+
+            else:
+                print("\n✗ Escolha inválida!")
         except ValueError:
-            print("✗ Entrada inválida!\n")
-            continue
+            print("\nAs escolhas são de 0 a 3!")
+
         
-        if opt == 0:
-            break
-        elif opt == 1:
-            print("\nColunas numéricas:")
-            for i, col in enumerate(colunas_numericas, 1):
-                print(f"  {i}. {col}")
-            
-            try:
-                idx = int(input("Escolha o número: ")) - 1
-                coluna = colunas_numericas[idx]
-                grafico_univariado_histograma(coluna)
-            except (ValueError, IndexError):
-                print("✗ Escolha inválida!\n")
-        elif opt == 2:
-            print("\nColunas categóricas:")
-            for i, col in enumerate(colunas_categoricas, 1):
-                print(f"  {i}. {col}")
-            
-            try:
-                idx = int(input("Escolha o número: ")) - 1
-                coluna = colunas_categoricas[idx]
-                grafico_univariado_barras(coluna)
-            except (ValueError, IndexError):
-                print("✗ Escolha inválida!\n")
-        elif opt == 3:
-            print("\nColunas numéricas:")
-            for i, col in enumerate(colunas_numericas, 1):
-                print(f"  {i}. {col}")
-            
-            try:
-                idx = int(input("Escolha o número: ")) - 1
-                coluna = colunas_numericas[idx]
-                grafico_univariado_boxplot(coluna)
-            except (ValueError, IndexError):
-                print("✗ Escolha inválida!\n")
-        else:
-            print("✗ Opção não reconhecida!\n")
+
+#Estatísticas por grupo
+
+def menu_estatisticas_grupos():
+    """Menu para estatísticas descritivas por grupos."""
+    while True:
+        colunas_numericas = obter_colunas_por_tipo('numérica')
+        colunas_categoricas = obter_colunas_por_tipo('categórica')
+        
+        print("\nTipos de análise estatística (tipos): ")
+        print("1 - Numérica (sem grupos)")
+        print("2 - Em grupo (categórica + numérica)")
+        print("0 - Voltar")
+
+        try:
+            idx_escolha = int(input("Escolha o tipo de análise estatística (número): ")) - 1
+            # 1) Voltar atrás    
+            if idx_escolha == -1:
+                break
+
+            # 2) Estatística simples de uma variável numérica
+            elif idx_escolha == 0:
+                print("\nColunas numéricas:")
+                for i, col in enumerate(colunas_numericas, 1):
+                    print(f"  {i}. {col}")
+                
+                try:
+                    idx = int(input("Escolha coluna para análise (número): ")) - 1
+                    col = colunas_numericas[idx]
+                
+                    stats_num = df[col].agg([
+                        'count', 'mean', 'std', 'min', 'max', 
+                        lambda x: x.quantile(0.25),
+                        lambda x: x.quantile(0.50),
+                        lambda x: x.quantile(0.75)
+                    ])
+                    stats_num.index = ['N', 'Média', 'Desvio Padrão', 'Mínimo', 'Máximo', 'Q1', 'Mediana', 'Q3']
+                    tabela_stats = stats_num.to_frame(name="Valor")
+
+                    print("\n" + "="*100)
+                    print(f"ESTATÍSTICAS DE {col.upper()}")
+                    print("="*100)
+                    print(tabulate(tabela_stats, headers="keys", tablefmt="github", floatfmt=".2f"))
+                    print()
+                        
+                except (ValueError, IndexError):
+                    print("\n✗ Escolha inválida!")
+                
+                
+
+            elif idx_escolha == 1:
+                print("\nColunas categóricas (agrupamento):")
+                for i, col in enumerate(colunas_categoricas, 1):
+                    print(f"  {i}. {col}")
+                
+                try:
+                    idx_grupo = int(input("Escolha coluna para agrupamento (número): ")) - 1
+                    col_grupo = colunas_categoricas[idx_grupo]
+                except (ValueError, IndexError):
+                    print("\n✗ Escolha inválida!")
+
+                
+                print("\nColunas numéricas (análise):")
+                for i, col in enumerate(colunas_numericas, 1):
+                    print(f"  {i}. {col}")
+                
+                try:
+                    idx_num = int(input("Escolha coluna para análise (número): ")) - 1
+                    col_num = colunas_numericas[idx_num]
+                except (ValueError, IndexError):
+                    print("\n✗ Escolha inválida!")
+
+                
+                try:
+                    # Calcular estatísticas
+                    stats_gp = df.groupby(col_grupo)[col_num].agg([
+                        'count', 'mean', 'std', 'min', 'max', 
+                        lambda x: x.quantile(0.25),
+                        lambda x: x.quantile(0.50),
+                        lambda x: x.quantile(0.75)
+                    ])
+                    stats_gp.columns = ['N', 'Média', 'Desvio Padrão', 'Mínimo', 'Máximo', 'Q1', 'Mediana', 'Q3']
+                    
+                    print("\n" + "="*100)
+                    print(f"ESTATÍSTICAS DE {col_num.upper()} POR {col_grupo.upper()}")
+                    print("="*100)
+                    print(tabulate(stats_gp, headers="keys", tablefmt="github", floatfmt=".2f"))
+                    print()
+
+                except Exception as e:
+                    print(f"\n✗ Erro ao calcular estatísticas: {e}")
+            else:
+                print("\n✗ Escolha inválida!")
+        except ValueError:
+            print("\nAs suas escolhas são de 0 a 2!")
+ 
+
 
 ###########################
 #         Menus           #
@@ -509,27 +644,37 @@ def menu_visualizaçao_geral():
         print(f"{"VISUALIZAÇÃO GERAL":^60}")
         print("="*60)
         print("1 - Tipo de variáveis existentes")
-        print("2 - Estatísticas de Localização")
-        print("3 - Tabela completa")
+        print("2 - Primeiros 10 registos")
+        print("3 - Últimos 10 registos")
+        print("4 - 10 registos aleatórios")
+        print("5 - Estatísticas de Localização")
+        print("6 - Tabela completa")
         print("0 - Voltar ao menu principal")
-        print("="*60)
-        
+        print("="*60)       
 
         try:
             opt = int(input("Qual a sua opção? "))
+
+            if opt == 0:
+                break
+            elif opt == 1:
+                vars()
+            elif opt == 2:
+                visualizar_primeiros_10()
+            elif opt == 3:
+                visualizar_ultimos_10()
+            elif opt == 4:
+                visualizar_aleatorios_10()
+            elif opt == 5:
+                estat()
+            elif opt == 6:
+                visualizar_tabela_completa()
+            else:
+                print("\n✗ Escolha inválida!")
+
         except ValueError:
-            print("Tem de ser um número inteiro entre 0 e 3")
-            
-        if opt == 0:
-            break
-        elif opt == 1:
-            vars()
-        elif opt == 2:
-            estat(df)
-        elif opt == 3:
-            print("Ainda sem funcionalidade")
-        else:
-            print("Valor não reconhecido")
+            print("\nAs suas escolhas são de 0 a 6!")
+
 
 #Menu EDA
 
@@ -546,25 +691,25 @@ def menu_eda():
         print("0 - Voltar ao menu principal")
         print("="*60)
         
-
         try:
             opt = int(input("Escolha uma opção: "))
+
+            if opt == 0:
+                break
+            elif opt == 1:
+                menu_tabelas_frequencias()
+            elif opt == 2:
+                menu_graficos_univariados()
+            elif opt == 3:
+                print("Fora de serviço!")
+            elif opt == 4:
+                menu_estatisticas_grupos()
+            else:
+                print("\n✗ Escolha inválida!")
+            
         except ValueError:
-            print("✗ Entrada inválida!\n")
-            continue
-        
-        if opt == 0:
-            break
-        elif opt == 1:
-            menu_tabelas_frequencias()
-        elif opt == 2:
-            menu_graficos_univariados()
-        elif opt == 3:
-            print("Fora de serviço!")
-        elif opt == 4:
-            print("Fora de serviço!")
-        else:
-            print("✗ Opção não reconhecida!\n")
+            print("\nAs suas escolhas são de 0 a 4!")
+
 
 #Menu Global de Visualização (obrigatorio)
 def main():
@@ -579,25 +724,25 @@ def main():
         print("0 - Sair")
         print("="*60)
         
-
         try:
             opt = int(input("Qual a sua opção? "))
-        except ValueError:
-            print("Tem de ser um número inteiro entre 0 e 4")
+            if opt == 0:
+                print("\nA fechar o programa...\n")
+                break
+            elif opt == 1:
+                menu_visualizaçao_geral()
+            elif opt == 2:
+                menu_eda()
+            elif opt == 3:
+                analise_normalidade(df)
+            elif opt == 4:
+                guardar(df)
+            else:
+                print("\n✗ Escolha inválida!")
 
-        if opt == 0:
-            print("\nA fechar o programa...\n")
-            break
-        elif opt == 1:
-            menu_visualizaçao_geral()
-        elif opt == 2:
-            menu_eda()
-        elif opt == 3:
-            analise_normalidade(df)
-        elif opt == 4:
-            guardar(df)
-        else:
-            print("Valor não reconhecido")
+        except ValueError:
+            print("\nAs suas escolhas são de 0 a 4!")
+
 
 if __name__ == "__main__":
     main()
