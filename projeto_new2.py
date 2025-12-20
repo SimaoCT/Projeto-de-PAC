@@ -27,7 +27,6 @@ import seaborn as sns
 import os
 import scipy.stats as stats
 from tabulate import tabulate
-from datetime import datetime
 #se não está instalado para as próximas bibliotecas fazer "pip install scikit-learn"
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
@@ -993,3 +992,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
