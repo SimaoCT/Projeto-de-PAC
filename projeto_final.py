@@ -21,7 +21,6 @@ Sleep Disorder: The presence or absence of a sleep disorder in the person (None,
 ############################
 
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
@@ -31,7 +30,7 @@ from tabulate import tabulate
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+from sklearn.metrics import classification_report, confusion_matrix
 
 ###########################
 #    Pré processamento    #
@@ -225,8 +224,9 @@ def menu_tabelas_frequencias(): #Menu interativo das tabelas de frequência
                         print()
 
                 except (ValueError, IndexError): #Se não for nenhuma das opções irá dar erro
-                    print("\n✗ Escolha inválida!")       
-            elif opt == 2: #Irá passar para a formação da tabela de contingência
+                    print("\n✗ Escolha inválida!")
+                        
+            elif opt == 2: #Ira passar para a formação da tabela de  contingencia
                 print("\nVariáveis categóricas disponíveis:")
                 for i, col in enumerate(colunas_categoricas, 1):
                     print(f"  {i}. {col}")
@@ -243,46 +243,45 @@ def menu_tabelas_frequencias(): #Menu interativo das tabelas de frequência
                         print("="+f"TABELA CRUZADA - {col1} vs {col2}".center(58)+"=")
                         print("="*60)
                         print(tabulate(tabela, headers="keys", tablefmt="github"))
-                        print()
+                        print()#Este print está aqui a fzer o q?
 
                 except (ValueError, IndexError):
                     print("\n✗ Escolha inválida!")
                     
-            else: #Caso o número da opção escolhido tenha sido fora dos parâmetros definidos
+            else: #Caso o número da opção escolhido fora dos parametros definidos
                 print("\n✗ Escolha inválida!")
                 
-        except ValueError: #Caso nem escolham um número e seja por exemplo uma letra
+        except ValueError: #Caso nem escolham um número e seja anything
             print("\nAs escolhas são de 0 a 2!")
 
 
 #Gráficos univariados
 
 def grafico_univariado_histograma(coluna): #Esta função tem como objetivo criar um histograma
- 
     try:
-        plt.figure(figsize=(10, 5))  #Vai definir o tamanho da figura, neste caso 10 de largura e 5 de altura
+        plt.figure(figsize=(10, 5))  #Vai defenir o tamanho da figura neste caso 10 de largura e 5 de altura
         plt.hist(df[coluna], bins=30, color="steelblue", edgecolor="black", alpha=0.7) #Cria o histograma com 30 intervalos
-        plt.xlabel(coluna, fontsize=12) #Dá o nome da variável ao eixo x
+        plt.xlabel(coluna, fontsize=12) #Dá o nome da variável ao eixo  dos x
         plt.ylabel("Frequência", fontsize=12) 
         plt.title(f"Histograma - {coluna}", fontsize=14, fontweight="bold") 
-        plt.grid(True, alpha=0.3) #Adiciona uma grelha
-        plt.tight_layout() #Serve para ajustar as margens automaticamente
-        plt.show() #Vai exibir o gráfico
+        plt.grid(True, alpha=0.3) # grelha
+        plt.tight_layout() #Serve para ajustar as margens auto
+        plt.show() 
 
     except Exception as erro:
         print(f"\n✗ Erro ao criar gráfico: {erro}")
 
 
-def grafico_univariado_barras(coluna): #Esta função tem como objetivo criar um gráfico de barras
+def grafico_univariado_barras(coluna): #Esta funcao tem como objetivo criar um grafico de barras
     
     try:
         plt.figure(figsize=(10, 5))
-        df[coluna].value_counts().plot(kind="bar", color="coral", edgecolor="black", alpha=0.7) #Vai criar o gráfico de barras contando cada vez que cada categoria aparece
+        df[coluna].value_counts().plot(kind="bar", color="coral", edgecolor="black", alpha=0.7) #Vai criar o gráfico de barras contando de  cada vez que cada categoria aparece
         plt.xlabel(coluna, fontsize=12)
         plt.ylabel("Frequência", fontsize=12)
         plt.title(f"Gráfico de Barras - {coluna}", fontsize=14, fontweight="bold")
-        plt.xticks(rotation=45, ha="right") #Vai fazer com que os nomes das categorias girem 45º para evitar sobreposição e ficarem alinahdos à direita
-        plt.grid(True, alpha=0.3, axis="y") #Vai ser aplicada apenas ao eixo y
+        plt.xticks(rotation=45, ha="right") #Vai fazer com que os nomes das categorias girem 45 para evitar sobreposição e ficarem alinahdos à direita
+        plt.grid(True, alpha=0.3, axis="y") #Vai ser aplicada apenas ao y
         plt.tight_layout()
         plt.show()
 
@@ -290,7 +289,7 @@ def grafico_univariado_barras(coluna): #Esta função tem como objetivo criar um
         print(f"\n✗ Erro ao criar gráfico: {erro}")
 
 
-def grafico_univariado_boxplot(coluna): #Esta função tem como objetivo criar uma caixa de bigodes(boxplot)
+def grafico_univariado_boxplot(coluna): #Esta função tem como objetivo criar um boxplot
 
     try:
         plt.figure(figsize=(10, 5))
@@ -307,8 +306,8 @@ def grafico_univariado_boxplot(coluna): #Esta função tem como objetivo criar u
 
 def menu_graficos_univariados(): #Menu dos gráficos univariados
     
-    colunas_numericas = obter_colunas_por_tipo("numérica") #Para obter a lista com todas as variáveis numéricas
-    colunas_categoricas = obter_colunas_por_tipo("categórica") #Para obter a lista com todas as variáveis categóricas
+    colunas_numericas = obter_colunas_por_tipo("numérica") #Obter a lista com todas as variaveis numéricas
+    colunas_categoricas = obter_colunas_por_tipo("categórica") # Obter a lista com todas as variáveis categóricas
     
     while True:
         print("\n" + "="*60)
@@ -323,11 +322,11 @@ def menu_graficos_univariados(): #Menu dos gráficos univariados
         try:
             opt = int(input("Escolha uma opção: "))
 
-            if opt == 0: #Opção escolhida para voltar para trás
+            if opt == 0: #Opção escolhida para voltar para tras
                 break
             elif opt == 1: #Opção escolhida para os histogramas
                 print("\nVariáveis numéricas disponíveis:")
-                for i, col in enumerate(colunas_numericas, 1): #Dá print das opções
+                for i, col in enumerate(colunas_numericas, 1): #Printa as opções
                     print(f"  {i}. {col}")
                 
                 try:
@@ -352,7 +351,7 @@ def menu_graficos_univariados(): #Menu dos gráficos univariados
                 
             elif opt == 3: #Opção escolhida para os boxplots
                 print("\nVariáveis numéricas disponíveis:")
-                for i, col in enumerate(colunas_numericas, 1): #Dá print das opções
+                for i, col in enumerate(colunas_numericas, 1): # Printa as opções
                     print(f"  {i}. {col}")
                 
                 try:
@@ -376,10 +375,10 @@ def grafico_bivariado_scatter(col_x, col_y, col_cor=None): #Esta função tem co
         plt.figure(figsize=(10, 6))
 
         if col_cor is not None:
-            categorias = df[col_cor].astype(str) #Vai converter a variável categórica em string para facilitar a sua usagem
+            categorias = df[col_cor].astype(str) #converte a variável categórica em string 
             categorias_unicas = categorias.unique() #Vai obter as categorias únicas da variável
-            palette = sns.color_palette("tab10", len(categorias_unicas)) #vai criar uma paleta de cores para o número de categorias únicas
-            cores = dict(zip(categorias_unicas, palette)) #Vai criar um dicionário que associa cada categoria a uma cor
+            palette = sns.color_palette("tab10", len(categorias_unicas)) # vai criar uma paleta de cores para o número de categorias únicas
+            cores = dict(zip(categorias_unicas, palette)) #Vai criar um dicionário que associa cada categoria a uma cor por cada categoria
 
             for cat in categorias_unicas:
                 mask = categorias == cat #Vai indicar quais linhas do dataframe pertencem à categoria cat
@@ -418,18 +417,16 @@ def grafico_bivariado_boxplot(col_cat, col_num): #Esta função tem como objetiv
         plt.grid(True, alpha=0.3, axis="y")
         plt.tight_layout()
         plt.show()
-
     except Exception as erro:
         print(f"\n✗ Erro ao criar boxplot bivariado: {erro}")
 
 
-def grafico_bivariado_heatmap(col1, col2): #Esta função tem como objetivo criar um heatmap entre duas variáveis categóricas
-
+def grafico_bivariado_heatmap(col1, col2): #Esta função tem como objetivo criar um heatmap entre duas variaveis categóricas
     try:
-        tabela = pd.crosstab(df[col1], df[col2]) #Vai criar uma tabela de contingência entre as duas variáveis categóricas
+        tabela = pd.crosstab(df[col1], df[col2]) #Vai criar uma tabela  entre as duas variáveis categóricas
 
         plt.figure(figsize=(10, 6))
-        sns.heatmap(tabela, annot=True, fmt="d", cmap="YlOrRd") #annot, os valores estão dentro de cada célula; fmt, os números aparecem como inteiros; cmap, paleta de cores
+        sns.heatmap(tabela, annot=True, fmt="d", cmap="YlOrRd") #annot -> os valores estão dentro de cada célula; fmt, os números aparecem como inteiros; cmap, paleta de cores
         plt.title(f"Heatmap - {col1} vs {col2}", fontsize=14, fontweight="bold")
         plt.xlabel(col2)
         plt.ylabel(col1)
@@ -440,8 +437,7 @@ def grafico_bivariado_heatmap(col1, col2): #Esta função tem como objetivo cria
         print(f"\n✗ Erro ao criar heatmap: {erro}")
 
 
-def menu_graficos_bivariados(): #Menu dos gráficos bivariados
-
+def menu_graficos_bivariados(): #Menu dos graficos bivariados
     colunas_numericas = obter_colunas_por_tipo("numérica")
     colunas_categoricas = obter_colunas_por_tipo("categórica")
 
@@ -455,38 +451,40 @@ def menu_graficos_bivariados(): #Menu dos gráficos bivariados
         print("0 - Voltar")
         print("="*60)
 
+
         try:
             opt = int(input("Escolha uma opção: "))
         except ValueError:
             print("\nAs escolhas são de 0 a 3!")
             continue
 
-        if opt == 0: #Opção escolhida para voltar para trás
+        if opt == 0: # Opção escolhida voltar para trás
             break
 
         elif opt == 1: #Opção escolhida para os gráficos de dispersão
-
             print("\nVariáveis numéricas disponíveis:")
             for i, col in enumerate(colunas_numericas, 1): #Dá print das opções
                 print(f"  {i}. {col}")
+
 
             try:
                 idx_x = int(input("Escolha a variável para o eixo X (número): ")) - 1
                 idx_y = int(input("Escolha a variável para o eixo Y (número): ")) - 1
                 col_x = colunas_numericas[idx_x] #Variável numérica escolhida para o eixo X
-                col_y = colunas_numericas[idx_y] #Variável numérica escolhida para o eixo Y
+                col_y = colunas_numericas[idx_y] # Variável numérica escolhida para o eixo Y
             except (ValueError, IndexError):
                 print("\n✗ Escolha inválida!")
                 continue
 
+
             col_cor = None
-            if colunas_categoricas: #Caso se queria agrupar por uma variável categórica
+            if colunas_categoricas: #Caso  se queria agrupar por variável categórica
                 print("\nVariáveis categóricas (para cor):")
                 print("  0. Sem cor (não agrupar)")
-                for i, col in enumerate(colunas_categoricas, 1): #Dá print das opções 
+                for i, col in enumerate(colunas_categoricas, 1): #Printa as opções
                     print(f"  {i}. {col}")
                 try:
-                    idx_cor = int(input("Escolha variável categórica para cor (0 para nenhuma): ")) # Escolha se querremos agrupar por uma variável categórica
+                    idx_cor = int(input("Escolha variável categórica para cor (0 para nenhuma): ")) # Escolha se querremos agrupar por uma variável categorica  
                     if idx_cor > 0:
                         col_cor = colunas_categoricas[idx_cor - 1]
                     elif idx_cor == 0:
@@ -497,10 +495,10 @@ def menu_graficos_bivariados(): #Menu dos gráficos bivariados
 
             grafico_bivariado_scatter(col_x, col_y, col_cor)
 
-        elif opt == 2: #Opção escolhida para os boxplots
+        elif opt == 2: # Opção escolhida para os boxplots
 
             print("\nVariáveis categóricas (agrupamento):")
-            for i, col in enumerate(colunas_categoricas, 1): #Dá print das opções
+            for i, col in enumerate(colunas_categoricas, 1): #Printa as opçõess
                 print(f"  {i}. {col}")
             try:
                 idx_cat = int(input("Escolha a variável categórica (número): ")) - 1
@@ -510,33 +508,33 @@ def menu_graficos_bivariados(): #Menu dos gráficos bivariados
                 continue
 
             print("\nVariáveis numéricas disponíveis:")
+
             for i, col in enumerate(colunas_numericas, 1):  #Dá print das opções
                 print(f"  {i}. {col}")
             try:
                 idx_num = int(input("Escolha a variável numérica (número): ")) - 1
-                col_num = colunas_numericas[idx_num]    #Variável numérica escolhida
+                col_num = colunas_numericas[idx_num]    #Variavel numérica escolhida
             except (ValueError, IndexError):
                 print("\n✗ Escolha inválida!")
                 continue
-
             grafico_bivariado_boxplot(col_cat, col_num)
 
         elif opt == 3: #Opção escolhida para os heatmaps
-
             print("\nVariáveis categóricas disponíveis:")
-            for i, col in enumerate(colunas_categoricas, 1): #Dá print das opções
+            for i, col in enumerate(colunas_categoricas, 1): #Printa as opções
                 print(f"  {i}. {col}")
 
             try:
                 idx1 = int(input("Escolha a 1ª variável (número): ")) - 1
                 idx2 = int(input("Escolha a 2ª variável (número): ")) - 1
                 col1 = colunas_categoricas[idx1] #Primeira variável categórica escolhida
-                col2 = colunas_categoricas[idx2] #Segunda variável categórica escolhida
+                col2 = colunas_categoricas[idx2] # Segunda variável categórica escolhida
             except (ValueError, IndexError):
                 print("\n✗ Escolha inválida!")
+                
                 continue
 
-            grafico_bivariado_heatmap(col1, col2) #Chama a função do heatmap
+            grafico_bivariado_heatmap(col1, col2) #chama a função do heatmap
 
         else:
             print("\n✗ Escolha inválida!")
@@ -544,11 +542,11 @@ def menu_graficos_bivariados(): #Menu dos gráficos bivariados
 
 #Estatísticas por grupo
 
-def menu_estatisticas_grupos(): #Menu interativo das estatísticas descritivas
+def menu_estatisticas_grupos(): #Menu interativo das estatísticas 
 
     while True: 
         colunas_numericas = obter_colunas_por_tipo("numérica") #Para obter a lista com todas as variáveis numéricas
-        colunas_categoricas = obter_colunas_por_tipo("categórica") #Para obter a lista com todas as variáveis categóricas
+        colunas_categoricas = obter_colunas_por_tipo("categórica") # Para obter a lista com todas as variáveis categóricas
 
         print("\nTipos de análise estatística (tipos): ")
         print("1 - Numérica (sem grupos)")
@@ -575,9 +573,9 @@ def menu_estatisticas_grupos(): #Menu interativo das estatísticas descritivas
                         lambda x: x.quantile(0.25),
                         lambda x: x.quantile(0.50),
                         lambda x: x.quantile(0.75)
-                    ]) #Calcular as estatísticas
+                    ]) #calculo das estatísticas
                     estatisticas_num.index = ["N", "Média", "Desvio Padrão", "Mínimo", "Máximo", "Q1", "Mediana", "Q3"] #Dá estes nomes ao índice
-                    tabela_estatisticas = estatisticas_num.to_frame(name="Valor") #Converte a série para um dataframe
+                    tabela_estatisticas = estatisticas_num.to_frame(name="Valor") #Converte a série  para dataframe
 
                     print("\n" + "="*60)
                     print("="+f"ESTATÍSTICAS DE {col.upper()}".center(58)+"=")
@@ -590,9 +588,9 @@ def menu_estatisticas_grupos(): #Menu interativo das estatísticas descritivas
                 
                 
 
-            elif idx_escolha == 1: #Opção escolhida para as estatísticas em grupo
+            elif idx_escolha == 1: # Opção escolhida para as estatísticas em grupo
                 print("\nVariáveis categóricas (agrupamento):")
-                for i, col in enumerate(colunas_categoricas, 1): #Dá print das opções
+                for i, col in enumerate(colunas_categoricas, 1): #Printa as opcoes
                     print(f"  {i}. {col}")
                 
                 try:
@@ -608,7 +606,7 @@ def menu_estatisticas_grupos(): #Menu interativo das estatísticas descritivas
                 
                 try:
                     idx_num = int(input("Escolha a variável para análise (número): ")) - 1
-                    col_num = colunas_numericas[idx_num] #Variável numérica escolhida
+                    col_num = colunas_numericas[idx_num] #Variável numerica escolhida
                 except (ValueError, IndexError):
                     print("\n✗ Escolha inválida!")
 
@@ -619,7 +617,7 @@ def menu_estatisticas_grupos(): #Menu interativo das estatísticas descritivas
                         lambda x: x.quantile(0.25),
                         lambda x: x.quantile(0.50),
                         lambda x: x.quantile(0.75)
-                    ]) #Calcular as estatísticas por grupo
+                    ]) # Calcular as estatísticas por grupo
                     estatisticas_gp.columns = ["N", "Média", "Desvio Padrão", "Mínimo", "Máximo", "Q1", "Mediana", "Q3"] #Dá estes nomes às colunas
                     
                     print("\n" + "="*60)
@@ -636,24 +634,34 @@ def menu_estatisticas_grupos(): #Menu interativo das estatísticas descritivas
             print("\nAs suas escolhas são de 0 a 2!")
 
 
-#Análise da normalidade
+# Análise da normalidade
 
 def analise_normalidade():
 
     colunas_numericas = obter_colunas_por_tipo("numérica")
     while True:
+        #Aqui e print do micro menuu
         print("\nVariáveis disponíveis:")
+        opt_todas = len(colunas_numericas)+1
         for i, col in enumerate(colunas_numericas, 1): #Dá print das opções
             print(f"  {i}. {col}")
+        print(f" {opt_todas}. Todas as Variáveis")
         print("  0. Voltar") #Opção para voltar para trás
 
-        try:   
+        try:  
             idx_num = int(input("\nEscolha uma variável: ")) - 1
-            col = colunas_numericas[idx_num] #Variável numérica escolhida
-            obj = [col] 
-
+            
             if idx_num == -1: #Opção escolhida para voltar para trás
                 break
+
+            obj = []
+            if idx_num == len(colunas_numericas):
+                obj = colunas_numericas
+                #Esta parte aqui é que nos  permite ver todas as variaveias ao mesmo tempo
+            else:
+                col = colunas_numericas[idx_num] #Variável numérica escolhida2
+                obj = [col]
+
             
             def teste(dados, col): #Função que realiza o teste de Shapiro-Wilk às variáveis numéricas
                 estatistica, p_value = stats.shapiro(dados)  #Teste de Shapiro-Wilk
@@ -681,10 +689,11 @@ def analise_normalidade():
             if resposta in ["s", "sim", "y", "yes"]:
                 
                 if len(obj) == 1:
-
+                    #Partir a figura em subplots este é para a figura única
                     fig, ax = plt.subplots(figsize=(6, 5))
                     lista_axes = [ax] 
                 else:
+                    #Aqui é quando  temos tudo
                     fig, axes = plt.subplots(3, 3, figsize=(10, 6))
                     lista_axes = axes.flatten() 
 
@@ -713,15 +722,15 @@ def reg_log(df):
     x = df.drop("Sleep_Disorder", axis = 1) #Variáveis independentes
     y = df["Sleep_Disorder"] #Dependente - aquilo que queremos prever
 
-    x = pd.get_dummies(x, columns=["Gender", "Occupation", "BMI_Category"], drop_first=True) #transformar em números
+    x = pd.get_dummies(x, columns=["Gender", "Occupation", "BMI_Category"], drop_first=True) #transformar  em números
 
-    le = LabelEncoder() # Aqui estamos a transformar as categorias em números
+    le = LabelEncoder() # Aqui estamos a transformar as categoria em números
     y = le.fit_transform(y)
 
     print("\n" + "="*60)
     print("="+f"{"MODELO":^58}"+"=")
     print("=" * 60)
-    print("Mapeamento das Classes:", dict(zip(le.classes_, le.transform(le.classes_))))
+    print("Mapeamento das Classes:", dict(zip(le.classes_, le.transform(le.classes_))))#Esta linha é importante forma um dict automátcio os os nomes e números atribuídos
 
     '''
     aqui estamos a criar um dicionário que é a nossa cábula para os números:
@@ -732,7 +741,8 @@ def reg_log(df):
     #Chunk de treino e teste
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=123)
 
-    scaler = StandardScaler() #Ajustar as escalas dos valores para não influenciar o modelo
+    scaler = StandardScaler() #Ajustar a escalas dos valores  para não influenciar o modelo
+
 
     x_train_scaled = scaler.fit_transform(x_train)
     x_test_scaled = scaler.transform(x_test)
@@ -745,26 +755,26 @@ def reg_log(df):
 
     #avaliação do modelo
     print("Relatório de Classificação:\n")
-    report = classification_report(y_test, y_pred, target_names=le.classes_)
+    report = classification_report(y_test, y_pred,target_names=le.classes_)
     report = report.replace("precision", "Precisão")
     report = report.replace("recall", "Sensibilidade")
     report = report.replace("f1-score", "F1-Score")
-    report = report.replace("support", "Suporte")
+    report = report.replace("support","Suporte")
     report = report.replace("accuracy", "Acurácia")
-    report = report.replace("macro avg", "Média Ma.")
+    report = report.replace("macro avg","Média Ma.")
     report = report.replace("weighted avg", "Média Ponde.")
     print(report)
     
     resposta = input("\nQuer visualizar a matriz de confusão? (s/n) ").lower().strip()
 
     if resposta in ["s", "sim", "y", "yes"]:
-        #matriz de confusão
+        #matriz  de confusão
         plt.figure(figsize=(8, 6))
         sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt="d", cmap="plasma",
                 xticklabels=le.classes_, yticklabels=le.classes_)
         plt.title("Matriz de Confusão - Sleep Disorder")
-        plt.ylabel('Verdadeiro')
-        plt.xlabel('Previsto')
+        plt.ylabel("Verdadeiro")
+        plt.xlabel("Previsto")
         plt.show()
     else:
         return
@@ -777,13 +787,13 @@ def reg_log(df):
 def guardar():
 
     print("\n" + "="*60)
-    print("="+f"{"GUARADR FICHEIRO":^58}"+"=")
+    print("="+f"{"GUARDAR FICHEIRO":^58}"+"=")
     print("=" * 60)
-    tipo_ficheiro = input("\nTipo de formato (ex: csv, txt...): ").lower().strip()
+    tipo_ficheiro = input("\nTipo de formato (ex: csv, txt, excel): ").lower().strip()
     nome_ficheiro = input(f"Nome do ficheiro (sem extensão): ").strip()
 
 
-    #Verifica o tipo de ficheiro
+    #Verifica o  tipo de ficheiro
     if tipo_ficheiro == "csv":
         nome_final = f"{nome_ficheiro}.csv"
     elif tipo_ficheiro == "excel" or tipo_ficheiro == "xlsx":
@@ -791,14 +801,14 @@ def guardar():
     elif tipo_ficheiro == "txt" or tipo_ficheiro == "texto":
         nome_final = f"{nome_ficheiro}.txt"
     else:
-        print("⚠ Operação cancelada. Tipo de ficheiro desconhecido!")
+        print("!Operação cancelada. Tipo de ficheiro desconhecido!")
         return
     
     #Verifica se o nome do ficheiro já existe
     if os.path.exists(nome_final):
-        rescrever = input(f"\nO ficheiro {nome_final} já existe.\nDeseja substituí-lo? (s/n)").lower()
-        if rescrever != "s":
-            print("⚠ Operação cancelada. Ficheiro não foi guardado!")
+        rescrever = input(f"\nO ficheiro {nome_final} já existe.\nDeseja substituí-lo? (s/n) ").lower()
+        if rescrever not in ["s","y","yes","sim"]:
+            print("!Operação cancelada. Ficheiro não foi guardado!")
             return
 
     #Guarda o ficheiro
@@ -873,7 +883,7 @@ def menu_visualizaçao_geral(): #Menu interativo da visualização geral
 
 #Menu EDA
 
-def menu_eda(): #Menu interativo da análise exploratória de dados
+def menu_eda(): #Menu iterativo  da análise exploratória de dados
     
     while True:
         print("\n" + "="*60)
@@ -889,7 +899,6 @@ def menu_eda(): #Menu interativo da análise exploratória de dados
         
         try:
             opt = int(input("Escolha uma opção: "))
-
             if opt == 0:
                 break
             elif opt == 1:
@@ -905,6 +914,7 @@ def menu_eda(): #Menu interativo da análise exploratória de dados
             else:
                 print("\n✗ Escolha inválida!")
             
+
         except ValueError:
             print("\nAs suas escolhas são de 0 a 5!")
 
