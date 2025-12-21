@@ -1,4 +1,10 @@
 '''
+Projeto realizado por:
+Gonçalo Pato – 114069
+João Cordeiro – 114932
+Simão Tavares -  113256
+
+
 Dataset Columns:
 Person ID: An identifier for each individual.
 Gender: The gender of the person (Male/Female).
@@ -26,11 +32,11 @@ import seaborn as sns
 import os
 import scipy.stats as stats
 from tabulate import tabulate
-#se não está instalado para as próximas bibliotecas fazer "pip install scikit-learn"
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix
+
 
 ###########################
 #    Pré processamento    #
@@ -143,7 +149,7 @@ def visualizar_tabela_completa(): #Esta função mostra uma tabela completa de d
     print("="*60)
     # Para tabelas muito grandes, mostra em duas partes
     if df.shape[0] > 50:  #Verifica se a tabela tem mais de 50 linhas
-        print("⚠ Tabela com muitos registos. Dividida em duas partes:\n")
+        print("Tabela com muitos registo! Dividida em duas partes:\n")
         print("PARTE 1 (primeiros 25):")
         print(tabulate(df.head(25), headers="keys", tablefmt="github", showindex=True))
         print("\n...\n")
@@ -454,90 +460,88 @@ def menu_graficos_bivariados(): #Menu dos graficos bivariados
 
         try:
             opt = int(input("Escolha uma opção: "))
-        except ValueError:
-            print("\nAs escolhas são de 0 a 3!")
-            continue
 
-        if opt == 0: # Opção escolhida voltar para trás
-            break
+            if opt == 0: # Opção escolhida voltar para trás
+                break
 
-        elif opt == 1: #Opção escolhida para os gráficos de dispersão
-            print("\nVariáveis numéricas disponíveis:")
-            for i, col in enumerate(colunas_numericas, 1): #Dá print das opções
-                print(f"  {i}. {col}")
-
-
-            try:
-                idx_x = int(input("Escolha a variável para o eixo X (número): ")) - 1
-                idx_y = int(input("Escolha a variável para o eixo Y (número): ")) - 1
-                col_x = colunas_numericas[idx_x] #Variável numérica escolhida para o eixo X
-                col_y = colunas_numericas[idx_y] # Variável numérica escolhida para o eixo Y
-            except (ValueError, IndexError):
-                print("\n✗ Escolha inválida!")
-                continue
-
-
-            col_cor = None
-            if colunas_categoricas: #Caso  se queria agrupar por variável categórica
-                print("\nVariáveis categóricas (para cor):")
-                print("  0. Sem cor (não agrupar)")
-                for i, col in enumerate(colunas_categoricas, 1): #Printa as opções
+            elif opt == 1: #Opção escolhida para os gráficos de dispersão
+                print("\nVariáveis numéricas disponíveis:")
+                for i, col in enumerate(colunas_numericas, 1): #Dá print das opções
                     print(f"  {i}. {col}")
+
                 try:
-                    idx_cor = int(input("Escolha variável categórica para cor (0 para nenhuma): ")) # Escolha se querremos agrupar por uma variável categorica  
-                    if idx_cor > 0:
-                        col_cor = colunas_categoricas[idx_cor - 1]
-                    elif idx_cor == 0:
-                        col_cor = None
+                    idx_x = int(input("Escolha a variável para o eixo X (número): ")) - 1
+                    idx_y = int(input("Escolha a variável para o eixo Y (número): ")) - 1
+                    col_x = colunas_numericas[idx_x] #Variável numérica escolhida para o eixo X
+                    col_y = colunas_numericas[idx_y] # Variável numérica escolhida para o eixo Y
                 except (ValueError, IndexError):
                     print("\n✗ Escolha inválida!")
                     continue
 
-            grafico_bivariado_scatter(col_x, col_y, col_cor)
+                col_cor = None
+                if colunas_categoricas: #Caso  se queria agrupar por variável categórica
+                    print("\nVariáveis categóricas (para cor):")
+                    print("  0. Sem cor (não agrupar)")
+                    for i, col in enumerate(colunas_categoricas, 1): #Printa as opções
+                        print(f"  {i}. {col}")
+                    try:
+                        idx_cor = int(input("Escolha variável categórica para cor (0 para nenhuma): ")) # Escolha se querremos agrupar por uma variável categorica  
+                        if idx_cor > 0:
+                            col_cor = colunas_categoricas[idx_cor - 1]
+                        elif idx_cor == 0:
+                            col_cor = None
 
-        elif opt == 2: # Opção escolhida para os boxplots
+                        grafico_bivariado_scatter(col_x, col_y, col_cor)
+                    except (ValueError, IndexError):
+                        print("\n✗ Escolha inválida!")
+                        continue
 
-            print("\nVariáveis categóricas (agrupamento):")
-            for i, col in enumerate(colunas_categoricas, 1): #Printa as opçõess
-                print(f"  {i}. {col}")
-            try:
-                idx_cat = int(input("Escolha a variável categórica (número): ")) - 1
-                col_cat = colunas_categoricas[idx_cat] #Variável categórica escolhida
-            except (ValueError, IndexError):
-                print("\n✗ Escolha inválida!")
-                continue
+            elif opt == 2: # Opção escolhida para os boxplots
 
-            print("\nVariáveis numéricas disponíveis:")
+                print("\nVariáveis categóricas (agrupamento):")
+                for i, col in enumerate(colunas_categoricas, 1): #Printa as opçõess
+                    print(f"  {i}. {col}")
+                try:
+                    idx_cat = int(input("Escolha a variável categórica (número): ")) - 1
+                    col_cat = colunas_categoricas[idx_cat] #Variável categórica escolhida
 
-            for i, col in enumerate(colunas_numericas, 1):  #Dá print das opções
-                print(f"  {i}. {col}")
-            try:
-                idx_num = int(input("Escolha a variável numérica (número): ")) - 1
-                col_num = colunas_numericas[idx_num]    #Variavel numérica escolhida
-            except (ValueError, IndexError):
-                print("\n✗ Escolha inválida!")
-                continue
-            grafico_bivariado_boxplot(col_cat, col_num)
+                except (ValueError, IndexError):
+                    print("\n✗ Escolha inválida!")
+                    continue
 
-        elif opt == 3: #Opção escolhida para os heatmaps
-            print("\nVariáveis categóricas disponíveis:")
-            for i, col in enumerate(colunas_categoricas, 1): #Printa as opções
-                print(f"  {i}. {col}")
-
-            try:
-                idx1 = int(input("Escolha a 1ª variável (número): ")) - 1
-                idx2 = int(input("Escolha a 2ª variável (número): ")) - 1
-                col1 = colunas_categoricas[idx1] #Primeira variável categórica escolhida
-                col2 = colunas_categoricas[idx2] # Segunda variável categórica escolhida
-            except (ValueError, IndexError):
-                print("\n✗ Escolha inválida!")
                 
-                continue
+                print("\nVariáveis numéricas disponíveis:")
+                for i, col in enumerate(colunas_numericas, 1):  #Dá print das opções
+                    print(f"  {i}. {col}")
+                try:
+                    idx_num = int(input("Escolha a variável numérica (número): ")) - 1
+                    col_num = colunas_numericas[idx_num]    #Variavel numérica escolhida
+                    grafico_bivariado_boxplot(col_cat, col_num)
+                except (ValueError, IndexError):
+                    print("\n✗ Escolha inválida!")
+                    continue
+                
+            elif opt == 3: #Opção escolhida para os heatmaps
+                print("\nVariáveis categóricas disponíveis:")
+                for i, col in enumerate(colunas_categoricas, 1): #Printa as opções
+                    print(f"  {i}. {col}")
 
-            grafico_bivariado_heatmap(col1, col2) #chama a função do heatmap
+                try:
+                    idx1 = int(input("Escolha a 1ª variável (número): ")) - 1
+                    idx2 = int(input("Escolha a 2ª variável (número): ")) - 1
+                    col1 = colunas_categoricas[idx1] #Primeira variável categórica escolhida
+                    col2 = colunas_categoricas[idx2] # Segunda variável categórica escolhida
+                    grafico_bivariado_heatmap(col1, col2) #chama a função do heatmap
+                except (ValueError, IndexError):
+                    print("\n✗ Escolha inválida!")
+                    continue
 
-        else:
-            print("\n✗ Escolha inválida!")
+            else:
+                print("\n✗ Escolha inválida!")
+           
+        except ValueError:
+            print("\nAs escolhas são de 0 a 3!")
+            continue
 
 
 #Estatísticas por grupo
@@ -955,3 +959,4 @@ def main(): #Menu interativo principal
 
 if __name__ == "__main__":
     main()
+
